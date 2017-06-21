@@ -1,79 +1,70 @@
-var content_view_1 = require("ui/content-view");
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 var color_1 = require("color");
+var drawingpad_common_1 = require("./drawingpad-common");
+__export(require("./drawingpad-common"));
 var DrawingPad = (function (_super) {
     __extends(DrawingPad, _super);
     function DrawingPad() {
-        _super.call(this);
-        this._ios = SignatureView;
-        this._ios = SignatureView.alloc().initWithFrame(CGRectMake(0, 0, 100, 100));
-        this._ios.clipsToBounds = true;
+        var _this = _super.call(this) || this;
+        _this.nativeView = SignatureView.alloc().initWithFrame(CGRectMake(0, 0, 100, 100));
+        _this.nativeView.clipsToBounds = true;
+        return _this;
     }
     Object.defineProperty(DrawingPad.prototype, "ios", {
         get: function () {
-            return this._ios;
+            return this.nativeView;
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(DrawingPad.prototype, "_nativeView", {
-        get: function () {
-            return this._ios;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DrawingPad.prototype, "penColor", {
-        set: function (value) {
-            if (this._ios && value) {
-                this._ios.setLineColor(new color_1.Color(value).ios);
-            }
-            else {
-                this._penColor = value;
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(DrawingPad.prototype, "penWidth", {
-        set: function (value) {
-            if (this._ios) {
-                if (value && typeof value !== 'undefined' && value !== NaN && value !== 'NaN') {
-                    this._ios.setLineWidth(Math.floor(parseInt(value)));
-                }
-            }
-            else {
-                this._penWidth = value;
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
+    DrawingPad.prototype[drawingpad_common_1.penWidthProperty.getDefault] = function () {
+        return this.nativeView.foregroundLineWidth;
+    };
+    DrawingPad.prototype[drawingpad_common_1.penWidthProperty.setNative] = function (value) {
+        this.nativeView.setLineWidth(Math.floor(value));
+    };
+    DrawingPad.prototype[drawingpad_common_1.penColorProperty.getDefault] = function () {
+        return this.nativeView.foregroundLineColor;
+    };
+    DrawingPad.prototype[drawingpad_common_1.penColorProperty.setNative] = function (value) {
+        var color = value instanceof color_1.Color ? value.ios : value;
+        this.nativeView.setLineColor(color);
+    };
     DrawingPad.prototype.onLoaded = function () {
         if (this.width) {
-            this._ios.frame.size.width = this.width;
+            this.nativeView.frame.size.width = this.width;
         }
         if (this.height) {
-            this._ios.frame.size.height = this.height;
-        }
-        try {
-            if (this._penColor) {
-                this.penColor = this._penColor;
-            }
-            if (this._penWidth) {
-                this.penWidth = this._penWidth;
-            }
-        }
-        catch (ex) {
-            console.log(ex);
+            this.nativeView.frame.size.height = this.height;
         }
     };
     DrawingPad.prototype.getDrawing = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             try {
-                var isSigned = _this._ios.isSigned();
+                var isSigned = _this.nativeView.isSigned();
                 if (isSigned === true) {
-                    var data = _this._ios.signatureImage();
+                    var data = _this.nativeView.signatureImage();
+                    resolve(data);
+                }
+                else {
+                    reject("DrawingPad is empty.");
+                }
+            }
+            catch (err) {
+                reject(err);
+            }
+        });
+    };
+    DrawingPad.prototype.getDrawingSvg = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                var isSigned = _this.nativeView.isSigned();
+                if (isSigned === true) {
+                    var data = _this.nativeView.signatureSvg();
                     resolve(data);
                 }
                 else {
@@ -95,10 +86,10 @@ var DrawingPad = (function (_super) {
                 else if (color.constructor == String) {
                     color = new color_1.Color(color).ios;
                 }
-                this._ios.clearWithColor(color);
+                this.nativeView.clearWithColor(color);
             }
             else {
-                this._ios.clear();
+                this.nativeView.clear();
             }
         }
         catch (err) {
@@ -106,5 +97,5 @@ var DrawingPad = (function (_super) {
         }
     };
     return DrawingPad;
-}(content_view_1.ContentView));
+}(drawingpad_common_1.DrawingPadBase));
 exports.DrawingPad = DrawingPad;

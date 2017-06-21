@@ -1,70 +1,55 @@
+function __export(m) {
+    for (var p in m)
+        if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 var color_1 = require("color");
-var common = require("./drawingpad-common");
-
-function onPenWidthPropertyChanged(data) {
-    var dPad = data.object;
-    if (!dPad.android) {
-        return;
-    }
-    dPad.android.setPts(data.newValue);
-}
-
-function onPenColorPropertyChanged(data) {
-    var dPad = data.object;
-    if (!dPad.android) {
-        return;
-    }
-    dPad.android.setPenColor(new color_1.Color(data.newValue).android);
-}
-
-function onPointsPropertyChanged(data) {
-    var dPad = data.object;
-    if (!dPad.android) {
-        return;
-    }
-    // dPad.android.setPenColor(new color_1.Color(data.newValue).android);
-}
-common.DrawingPad.penWidthProperty.metadata.onSetNativeValue = onPenWidthPropertyChanged;
-common.DrawingPad.penColorProperty.metadata.onSetNativeValue = onPenColorPropertyChanged;
-common.DrawingPad.pointsProperty.metadata.onSetNativeValue = onPointsPropertyChanged;
-global.moduleMerge(common, exports);
+var drawingpad_common_1 = require("./drawingpad-common");
 var SignaturePad = com.github.gcacace.signaturepad.views.SignaturePad;
+__export(require("./drawingpad-common"));
 var DrawingPad = (function (_super) {
     __extends(DrawingPad, _super);
 
     function DrawingPad() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Object.defineProperty(DrawingPad.prototype, "android", {
         get: function () {
-            return this._android;
+            return this.nativeView;
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(DrawingPad.prototype, "_nativeView", {
-        get: function () {
-            return this._android;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    DrawingPad.prototype._createUI = function () {
-        this._android = new SignaturePad(this._context, null);
+    DrawingPad.prototype.createNativeView = function () {
+        var signaturePad = new SignaturePad(this._context, null);
         if (this.penColor) {
-            this._android.setPenColor(new color_1.Color(this.penColor).android);
+            signaturePad.setPenColor(this.penColor.android);
         }
         if (this.penWidth) {
-            this._android.setMinWidth(this.penWidth);
+            signaturePad.setMinWidth(this.penWidth);
         }
+        return signaturePad;
+    };
+    DrawingPad.prototype[drawingpad_common_1.penWidthProperty.getDefault] = function () {
+        return this.nativeView.minWidth;
+    };
+    DrawingPad.prototype[drawingpad_common_1.penWidthProperty.setNative] = function (value) {
+        this.nativeView.setMinWidth(value);
+    };
+    DrawingPad.prototype[drawingpad_common_1.penColorProperty.getDefault] = function () {
+        return this.nativeView.penColor;
+    };
+    DrawingPad.prototype[drawingpad_common_1.penColorProperty.setNative] = function (value) {
+        var color = value instanceof color_1.Color ? value.android : value;
+        this.nativeView.setPenColor(color);
     };
     DrawingPad.prototype.getDrawing = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
             try {
-                if (!_this._android.isEmpty()) {
-                    var data = _this._android.getSignatureBitmap();
+                if (!_this.nativeView.isEmpty()) {
+                    var data = _this.nativeView.getSignatureBitmap();
                     resolve(data);
+
                 } else {
                     reject("DrawingPad is empty.");
                 }
@@ -77,8 +62,8 @@ var DrawingPad = (function (_super) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             try {
-                if (!_this._android.isEmpty()) {
-                    var data = _this._android.getTransparentSignatureBitmap();
+                if (!_this.nativeView.isEmpty()) {
+                    var data = _this.nativeView.getTransparentSignatureBitmap();
                     resolve(data);
                 } else {
                     reject("DrawingPad is empty.");
@@ -92,9 +77,10 @@ var DrawingPad = (function (_super) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             try {
-                if (!_this._android.isEmpty()) {
-                    var data = _this._android.getSignatureSvg();
-                    resolve(data);
+                if (!_this.nativeView.isEmpty()) {
+                    var data = _this.nativeView.getSignatureSvg();
+                    var svgHeaderRegEx = /<svg (.*) height="(\d+)" width="(\d+)"(.*)>/i;
+                    resolve(data.replace(svgHeaderRegEx, "<svg $1 viewBox=\"0, 0, $3, $2\" height=\"$2\" width=\"$3\"$4>"));
                 } else {
                     reject("DrawingPad is empty.");
                 }
@@ -105,9 +91,7 @@ var DrawingPad = (function (_super) {
     };
     DrawingPad.prototype.clearDrawing = function () {
         try {
-            console.log('clear drawing');
-            if (this._android)
-                this._android.clear();
+            this.nativeView.clear();
         } catch (err) {
             console.log('Error in clearDrawing: ' + err);
         }
@@ -129,7 +113,6 @@ var DrawingPad = (function (_super) {
             console.log('Error in setHrtMark: ' + err);
         }
     };
-
     DrawingPad.prototype.addPoint = function (point) {
         try {
             if (this.android)
@@ -147,9 +130,19 @@ var DrawingPad = (function (_super) {
             console.log('Error in update: ' + err);
         }
     };
+    DrawingPad.prototype.setGraphType = function (_type) {
+        try {
+            // console.log('update function');
+            if (this.android)
+                this.android.setPenColor(_type);
+        } catch (err) {
+            console.log('Error in update: ' + err);
+        }
+    };
+
 
 
 
     return DrawingPad;
-}(common.DrawingPad));
+}(drawingpad_common_1.DrawingPadBase));
 exports.DrawingPad = DrawingPad;

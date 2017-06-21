@@ -9,5 +9,4 @@ android {
 
 dependencies {
     //  compile "com.github.gcacace:signature-pad:1.0.3"
-    //  compile files('classes.jar')
 }

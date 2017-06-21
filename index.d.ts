@@ -1,9 +1,18 @@
-import common = require("./drawingpad-common");
-export declare class DrawingPad extends common.DrawingPad {
+import { View } from "ui/core/view";
+import { Color } from "color";
+
+export class DrawingPad extends View {
     android: any;
     ios: any;
-    _nativeView: any;
 
+    /**
+     * Gets/sets the drawing color of the pen.
+     */
+    penColor: any;
+    /**
+     * Gets/sets the drawing width of the pen.
+     */
+    penWidth: any;
     /**
      * Returns native image.
      */
@@ -15,17 +24,18 @@ export declare class DrawingPad extends common.DrawingPad {
     getTransparentDrawing(): Promise<any>;
 
     /**
-     * Returns a Scalable Vector Graphics document *** ANDROID ONLY ***
+     * Returns a Scalable Vector Graphics document
      */
-    getDrawingSvg(): Promise<any>;
+    getDrawingSvg(): Promise<string>;
 
     /**
      * Clears the drawing from the DrawingPad.
      */
-    clearDrawing(): any;
+    clearDrawing(): void;
 
-    setPts(arr): any;
+    setPts(arr: any): any;
     setHrtMark(index, str): any;
     addPoint(point): any;
     update(): any;
+    setGraphType(_type: number): any;
 }
