@@ -140,6 +140,9 @@ var DrawingPad = (function (_super) {
         }
     };
 
+
+
+
     return DrawingPad;
 }(drawingpad_common_1.DrawingPadBase));
 exports.DrawingPad = DrawingPad;
