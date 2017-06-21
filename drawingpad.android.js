@@ -134,14 +134,11 @@ var DrawingPad = (function (_super) {
         try {
             // console.log('update function');
             if (this.android)
-                this.android.setPenColor(_type);
+                this.android.setGraphType(_type);
         } catch (err) {
-            console.log('Error in update: ' + err);
+            console.log('Error in setGraphType: ' + err);
         }
     };
-
-
-
 
     return DrawingPad;
 }(drawingpad_common_1.DrawingPadBase));
